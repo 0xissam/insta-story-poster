@@ -7,24 +7,9 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 import telebot
 
-
 load_dotenv()
 
-users = ['getfitbyline','malak_belkacem', 'g.athleticstudio', 'nadia__sedki', 'sara.sedkix', 'maryanagharibb', 'beki_ksri',
-          'rymfikri', 'afrasaracoglu', 'dhuratadoraspage', 'lil._.cassie', 'osallak.interior',
-          'cristiana.love', 'aya_jul1', 'melisadongel', 'caterina__petracca', 'kawtarbamo', 'alliesherlock',
-          'mandysacs', 'dhurkidoraa_fan', 'bodydesigner', 'luxurygirl.live', 'akinemre_',
-          'saocurious', 'bessan.lsmail', 'helga_model', 'indiimustafa', 'solazolareal', 'miraslava.kostyeva',
-          'xenia', 'kendalljenner', 'kellyvedovelli', 'jouhinamarlini', 'handemiyy', 'daniellasalvi',
-          'narins_beauty', 'cedrabeauty', 'sherinsbeauty', 'burcuozberk', 'ozgeyagizz', 'melisapamuk',
-          '_moravskka', 'hazalfilizkucukkose', 'dhuratadora', 'iamyanetgarcia', 'aycaaysinturan', 'sommerray',
-          'norafatehi', 'cathykelley', 'iamenisa', 'gigihadid', 'georginagio', 'karolg', 'tassanakrit',
-          'aalyahgutierrez', 'lanarose786', 'demetozdemir', 'bensusoral', 'mercedes_ns',
-          'majda_bouhaidoura', 'annemarie', 'billieeilish', 'denizbaysal_', 'naiss_officiel_48', 'berbich_sofia',
-          'iam_evaqueen', 'olhafatiuk', 'sedef.bekiroglu', 'madisonbeer', 'kayaozgu', 'neslihanatagul',
-          'noursaw', 'mariahnadim', 'thecjperry', 'melimtx', 'carolinemarlini', 'amandacerny', 'serdarsanal',
-          'yasin_yazici', 'keremmsoyler', 'dilandeniz', 'nadineladki14', 'malutrevejo', 'gamze_ercel', 'faouzia',
-         'elouadilea', 'elcinsangu', 'haileybieber', 'dualipa', 'selenagomez', 'evcenf', 'catitttaisi', 'kyliejenner']
+users = ['iamenisa']
 
 chatId = os.getenv('CHAT_ID')
 bot_token = os.getenv('BOT_TOKEN')
@@ -54,7 +39,7 @@ def extract_media_url(url: str) -> str:
 
 
 def extract_media_hash(url: str) -> str:
-    match = re.search(r'/([^/]+\.(?:mp4|jpg))', url)
+    match = re.search(r'/([^/]+\.(?:mp4|jpg|webp))', url)
     if match:
         return match.group(1)
     else:
@@ -67,47 +52,48 @@ def isitvideo(url: str) -> bool:
     return any(ext in url for ext in video_extensions)
 
 
-def sendvideo(video_url, chatId, caption=None):
-    url = f"https://api.telegram.org/bot{bot_token}/sendVideo"
-    payload = {
-        "chat_id": chatId,
-        "photo": video_url,
-        "caption": caption
-    }   
+def download_media(url: str, folder: str = "downloads") -> str:
+    """Download media to a local folder and return local file path."""
+    os.makedirs(folder, exist_ok=True)
+    try:
+        response = requests.get(url, stream=True, timeout=30)
+        response.raise_for_status()
+        filename = extract_media_hash(url)
+        local_path = os.path.join(folder, filename)
+        with open(local_path, "wb") as f:
+            for chunk in response.iter_content(1024 * 1024):
+                f.write(chunk)
+        return local_path
+    except Exception as e:
+        print(f"❌ Failed to download media: {url} ({e})")
+        return None
 
-    response = requests.post(url, json=payload)
-    if response.status_code == 200:
-        print(f"✅ Video sent: {caption}")
-    else:
-        print(f"❌ Failed to send video: {response.text}")
-    return
 
-def sendphoto(photo_url, chatId, caption=None):
-    url = f"https://api.telegram.org/bot{bot_token}/sendPhoto"
-    payload = {
-        "chat_id": chatId,
-        "photo": photo_url,
-        "caption": caption
-    }   
-
-    response = requests.post(url, json=payload)
-    if response.status_code == 200:
-        print(f"✅ Photo sent: {caption}")
-    else:
-        print(f"❌ Failed to send photo: {response.text}")
-    return
-
-def sendmedia(url, chatId, caption=None):
+def sendmedia_with_fallback(url, chatId, caption=None):
+    """Try sending via URL first, fallback to local download if fails."""
     try:
         if isitvideo(url):
-            # sendvideo(url, chatId, caption=caption)
             bot.send_video(chatId, url, caption=caption)
         else:
-            # sendphoto(url, chatId, caption=caption)
             bot.send_photo(chatId, url, caption=caption)
-        print(f"✅ Sent: {caption}")
+        print(f"✅ Sent via URL for: {caption}")
     except Exception as e:
-        print(f"❌ Failed to send {url}: {e}")
+        print(f"⚠️ Failed to send via URL for {caption}: {url} ({e})")
+        local_file = download_media(url)
+        if not local_file:
+            return
+        try:
+            with open(local_file, "rb") as f:
+                if isitvideo(local_file):
+                    bot.send_video(chatId, f, caption=caption)
+                else:
+                    bot.send_photo(chatId, f, caption=caption)
+            print(f"✅ Sent via local file for: {caption}")
+        except Exception as e:
+            print(f"❌ Failed to send local file {local_file}: {e}")
+        finally:
+            if os.path.exists(local_file):
+                os.remove(local_file)
 
 
 def getusername(username: str) -> list:
@@ -157,13 +143,13 @@ def fetch_stories(username, chatId):
     for link in media_links:
         try:
             media_hash = extract_media_hash(link)
-            sendmedia(link, chatId, caption=username)
+            sendmedia_with_fallback(link, chatId, caption=username)
             sent_media.add(media_hash)
             with open(SENT_FILE, "a") as f:
                 f.write(media_hash + "\n")
         except ValueError:
             print(f"⚠️ Skipped invalid media URL: {link}")
-        time.sleep(2)  # short delay to avoid flooding
+        time.sleep(2)
 
 
 def main():
@@ -178,4 +164,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
