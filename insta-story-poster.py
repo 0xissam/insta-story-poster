@@ -9,8 +9,8 @@ import telebot
 
 load_dotenv()
 
-users = ['getfitbyline','malak_belkacem', 'g.athleticstudio', 'nadia__sedki', 'sara.sedkix', 'maryanagharibb', 'beki_ksri',
-          'rymfikri', 'afrasaracoglu', 'dhuratadoraspage', 'lil._.cassie', 'osallak.interior',
+users = ['sanaeslaaay','getfitbyline','malak_belkacem', 'g.athleticstudio', 'nadia__sedki', 'sara.sedkix', 'maryanagharibb', 'beki_ksri',
+          'rymfikri', 'afrasaracoglu', 'dhuratadoraspage', 'lil._.cassie', 'osallak.interior','osallakinterior',
           'cristiana.love', 'aya_jul1', 'melisadongel', 'caterina__petracca', 'kawtarbamo', 'alliesherlock',
           'mandysacs', 'dhurkidoraa_fan', 'bodydesigner', 'luxurygirl.live', 'akinemre_',
           'saocurious', 'bessan.lsmail', 'helga_model', 'indiimustafa', 'solazolareal', 'miraslava.kostyeva',
