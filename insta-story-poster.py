@@ -9,7 +9,21 @@ import telebot
 
 load_dotenv()
 
-users = ['iamenisa']
+users = ['getfitbyline','malak_belkacem', 'g.athleticstudio', 'nadia__sedki', 'sara.sedkix', 'maryanagharibb', 'beki_ksri',
+          'rymfikri', 'afrasaracoglu', 'dhuratadoraspage', 'lil._.cassie', 'osallak.interior',
+          'cristiana.love', 'aya_jul1', 'melisadongel', 'caterina__petracca', 'kawtarbamo', 'alliesherlock',
+          'mandysacs', 'dhurkidoraa_fan', 'bodydesigner', 'luxurygirl.live', 'akinemre_',
+          'saocurious', 'bessan.lsmail', 'helga_model', 'indiimustafa', 'solazolareal', 'miraslava.kostyeva',
+          'xenia', 'kendalljenner', 'kellyvedovelli', 'jouhinamarlini', 'handemiyy', 'daniellasalvi',
+          'narins_beauty', 'cedrabeauty', 'sherinsbeauty', 'burcuozberk', 'ozgeyagizz', 'melisapamuk',
+          '_moravskka', 'hazalfilizkucukkose', 'dhuratadora', 'iamyanetgarcia', 'aycaaysinturan', 'sommerray',
+          'norafatehi', 'cathykelley', 'iamenisa', 'gigihadid', 'georginagio', 'karolg', 'tassanakrit',
+          'aalyahgutierrez', 'lanarose786', 'demetozdemir', 'bensusoral', 'mercedes_ns',
+          'majda_bouhaidoura', 'annemarie', 'billieeilish', 'denizbaysal_', 'naiss_officiel_48', 'berbich_sofia',
+          'iam_evaqueen', 'olhafatiuk', 'sedef.bekiroglu', 'madisonbeer', 'kayaozgu', 'neslihanatagul',
+          'noursaw', 'mariahnadim', 'thecjperry', 'melimtx', 'carolinemarlini', 'amandacerny', 'serdarsanal',
+          'yasin_yazici', 'keremmsoyler', 'dilandeniz', 'nadineladki14', 'malutrevejo', 'gamze_ercel', 'faouzia',
+          'elouadilea', 'elcinsangu', 'haileybieber', 'dualipa', 'selenagomez', 'evcenf', 'catitttaisi', 'kyliejenner']
 
 chatId = os.getenv('CHAT_ID')
 bot_token = os.getenv('BOT_TOKEN')
