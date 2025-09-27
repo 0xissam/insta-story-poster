@@ -66,7 +66,7 @@ def isitvideo(url: str) -> bool:
     return any(ext in url for ext in video_extensions)
 
 
-def download_media(url: str, folder: str = "downloads") -> str:
+def download_media(url: str, folder: str = "stories_downloads") -> str:
     """Download media to a local folder and return local file path."""
     os.makedirs(folder, exist_ok=True)
     try:
