@@ -53,7 +53,7 @@ def extract_media_url(url: str) -> str:
 
 
 def extract_media_hash(url: str) -> str:
-    match = re.search(r'/([^/]+\.(?:mp4|jpg|webp))', url)
+    match = re.search(r'/([^/]+\.(?:mp4|jpg|webp|heic))', url)
     if match:
         return match.group(1)
     else:
