@@ -1,4 +1,4 @@
 .env
 sent_stories.txt
-sent_posts.txt
+# sent_posts.txt
 venv/
