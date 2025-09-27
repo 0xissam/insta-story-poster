@@ -1,3 +1,5 @@
+# from http import cookies
+# from wsgiref import headers
 import requests
 import time
 import urllib.parse
@@ -9,25 +11,33 @@ import telebot
 
 load_dotenv()
 
-users = ['sanaeslaaay','getfitbyline','malak_belkacem', 'g.athleticstudio', 'nadia__sedki', 'sara.sedkix', 'maryanagharibb', 'beki_ksri',
-          'rymfikri', 'afrasaracoglu', 'dhuratadoraspage', 'lil._.cassie', 'osallak.interior','osallakinterior',
-          'cristiana.love', 'aya_jul1', 'melisadongel', 'caterina__petracca', 'kawtarbamo', 'alliesherlock',
-          'mandysacs', 'dhurkidoraa_fan', 'bodydesigner', 'luxurygirl.live', 'akinemre_',
-          'saocurious', 'bessan.lsmail', 'helga_model', 'indiimustafa', 'solazolareal', 'miraslava.kostyeva',
-          'xenia', 'kendalljenner', 'kellyvedovelli', 'jouhinamarlini', 'handemiyy', 'daniellasalvi',
-          'narins_beauty', 'cedrabeauty', 'sherinsbeauty', 'burcuozberk', 'ozgeyagizz', 'melisapamuk',
-          '_moravskka', 'hazalfilizkucukkose', 'dhuratadora', 'iamyanetgarcia', 'aycaaysinturan', 'sommerray',
-          'norafatehi', 'cathykelley', 'iamenisa', 'gigihadid', 'georginagio', 'karolg', 'tassanakrit',
-          'aalyahgutierrez', 'lanarose786', 'demetozdemir', 'bensusoral', 'mercedes_ns',
-          'majda_bouhaidoura', 'annemarie', 'billieeilish', 'denizbaysal_', 'naiss_officiel_48', 'berbich_sofia',
-          'iam_evaqueen', 'olhafatiuk', 'sedef.bekiroglu', 'madisonbeer', 'kayaozgu', 'neslihanatagul',
-          'noursaw', 'mariahnadim', 'thecjperry', 'melimtx', 'carolinemarlini', 'amandacerny', 'serdarsanal',
-          'yasin_yazici', 'keremmsoyler', 'dilandeniz', 'nadineladki14', 'malutrevejo', 'gamze_ercel', 'faouzia',
-          'elouadilea', 'elcinsangu', 'haileybieber', 'dualipa', 'selenagomez', 'evcenf', 'catitttaisi', 'kyliejenner']
+users = {
+    'melisadongel': '-4163542302',
+    'kellyvedovelli': '-4119486842',
+    'hazalfilizkucukkose': '-4077287676',
+    'osallak.interior': '-4182459088',
+    'kayaozgu': '-980910357',
+    'ozgeyagizz': '-4131475751',
+    'cathykelley': '-641685935',
+    'aycaaysinturan': '-4184781991',
+    'burcuozberk': '-4156120039',
+    'handemiyy': '-1002448516627',
+    'lil._.cassie': '-4234575437',
+    'cemrebaysel': '-4641456653',
+    'sommerray': '-4798969334',
+    'jouhinamarlini': '-4668002641',
+    '_moravskka': '-4158804258',
+    'afrasaracoglu': '-4677458491',
+    'daniellasalvi': '-4654672155',
+    'aya_jul1': '-4700522756',
+    'iamenisa': '-4657793575',
+    'dhuratadora': '-4793888938',
+    'rymfikri':'-4624135935',
+}
 
-chatId = os.getenv('CHAT_ID')
-bot_token = os.getenv('STORIES_BOT_TOKEN')
-SENT_FILE = os.getenv("SENT_FILE_STORIES", "sent_media.txt")
+# chatId = os.getenv('CHAT_ID')
+bot_token = os.getenv('POSTS_BOT_TOKEN')
+SENT_FILE = os.getenv("SENT_FILE_POSTS", "sent_posts.txt")
 
 bot = telebot.TeleBot(bot_token)
 
@@ -87,9 +97,9 @@ def sendmedia_with_fallback(url, chatId, caption=None):
     """Try sending via URL first, fallback to local download if fails."""
     try:
         if isitvideo(url):
-            bot.send_video(chatId, url, caption=caption)
+            bot.send_video(chatId, url)
         else:
-            bot.send_photo(chatId, url, caption=caption)
+            bot.send_photo(chatId, url)
         print(f"✅ Sent via URL for: {caption}")
     except Exception as e:
         print(f"⚠️ Failed to send via URL for {caption}: {url} ({e})")
@@ -99,9 +109,9 @@ def sendmedia_with_fallback(url, chatId, caption=None):
         try:
             with open(local_file, "rb") as f:
                 if isitvideo(local_file):
-                    bot.send_video(chatId, f, caption=caption)
+                    bot.send_video(chatId, f)
                 else:
-                    bot.send_photo(chatId, f, caption=caption)
+                    bot.send_photo(chatId, f)
             print(f"✅ Sent via local file for: {caption}")
         except Exception as e:
             print(f"❌ Failed to send local file {local_file}: {e}")
@@ -128,7 +138,7 @@ def getusername(username: str) -> list:
 
     params = {
         'url': username,
-        'method': 'allstories',
+        'method': 'allposts',
     }
 
     response = requests.get('https://storiesdown.org/content.php', params=params, headers=headers)
@@ -148,13 +158,13 @@ def getusername(username: str) -> list:
     return links
 
 
-def fetch_stories(username, chatId):
+def fetch_posts(username, chatId):
     media_links = getusername(username)
     if not media_links:
-        print(f"ℹ️ No stories found for {username}")
+        print(f"ℹ️ No new Posts found for {username}")
         return
 
-    for link in media_links:
+    for link in reversed(media_links):
         try:
             media_hash = extract_media_hash(link)
             sendmedia_with_fallback(link, chatId, caption=username)
@@ -167,9 +177,9 @@ def fetch_stories(username, chatId):
 
 
 def main():
-    for user in users:
+    for user, chatId in users.items():
         try:
-            fetch_stories(user, chatId)
+            fetch_posts(user, chatId)
             print("⏸️ Waiting 10 seconds before next user...")
             time.sleep(10)
         except Exception as e:

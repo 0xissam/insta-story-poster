@@ -1,3 +1,4 @@
 .env
-sent_media.txt
+sent_stories.txt
+sent_posts.txt
 venv/
